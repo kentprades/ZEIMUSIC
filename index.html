@@ -81,6 +81,7 @@
       transition: color 0.3s ease;
     }
     .controls button:hover { color: #1db954; }
+    .controls button.active { color: #1db954; }
 
     .extra-controls {
       flex: 1 1 auto; display: flex; justify-content: flex-end;
@@ -126,11 +127,9 @@
         <div class="queue-item" data-src="songs/song3.mp3" data-title="System Crash (By Shawn Kent)" data-genre="Rock" data-art="covers/song3.jpg">
           <img src="covers/song3.jpg" alt="Cover"> System Crash (By Shawn Kent)
         </div>
-        <div class="queue-item" data-src="songs/song4.mp3" data-title="I'll save you (By Shawn Kent)" data-genre="lullaby calm" data-art="covers/song4.jpg">
+        <div class="queue-item" data-src="songs/song4.mp3" data-title="I'll save you (By Shawn Kent)" data-genre="Lullaby Calm" data-art="covers/song4.jpg">
           <img src="covers/song4.jpg" alt="Cover"> I'll save you (By Shawn Kent)
         </div>
-
-
       </div>
     </div>
   </div>
@@ -152,22 +151,27 @@
         <span id="duration" class="time">0:00</span>
       </div>
       <div class="controls">
-        <button id="prev">⏮</button>
-        <button id="play">▶</button>
-        <button id="next">⏭</button>
+        <button id="prev"><div data-lucide="skip-back"></div></button>
+        <button id="play"><div data-lucide="play"></div></button>
+        <button id="next"><div data-lucide="skip-forward"></div></button>
+        <button id="shuffle"><div data-lucide="shuffle"></div></button>
+        <button id="repeat"><div data-lucide="repeat"></div></button>
       </div>
     </div>
 
     <div class="extra-controls">
-      🔊 <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.01" value="1">
+      <div data-lucide="volume-2"></div>
+      <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.01" value="1">
     </div>
   </div>
 
- <script>
+  <script>
   const audioPlayer = document.getElementById('audio-player');
   const playBtn = document.getElementById('play');
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
+  const shuffleBtn = document.getElementById('shuffle');
+  const repeatBtn = document.getElementById('repeat');
   const progressBar = document.getElementById('progress-bar');
   const progressContainer = document.querySelector('.progress');
   const currentTimeEl = document.getElementById('current-time');
@@ -182,6 +186,8 @@
   const currentSongName = document.getElementById('current-song-name');
 
   let currentIndex = 0;
+  let isShuffle = false;
+  let isRepeat = false;
 
   function playSong(index) {
     const item = queueItems[index];
@@ -191,7 +197,7 @@
 
     // Update main player info
     currentArt.src = item.dataset.art;
-        currentTitle.textContent = item.dataset.title;
+    currentTitle.textContent = item.dataset.title;
     currentGenre.textContent = item.dataset.genre;
 
     // Update bottom bar song info
@@ -202,17 +208,19 @@
     queueItems.forEach(q => q.classList.remove('active'));
     item.classList.add('active');
 
-    playBtn.textContent = '⏸';
+    playBtn.innerHTML = '<div data-lucide="pause"></div>';
+    lucide.createIcons();
   }
 
   playBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
       audioPlayer.play();
-      playBtn.textContent = '⏸';
+      playBtn.innerHTML = '<div data-lucide="pause"></div>';
     } else {
       audioPlayer.pause();
-      playBtn.textContent = "▶";
+      playBtn.innerHTML = '<div data-lucide="play"></div>';
     }
+    lucide.createIcons();
   });
 
   prevBtn.addEventListener('click', () => {
@@ -223,11 +231,29 @@
     if (currentIndex < queueItems.length - 1) playSong(currentIndex + 1);
   });
 
+  // Shuffle toggle
+  shuffleBtn.addEventListener('click', () => {
+    isShuffle = !isShuffle;
+    shuffleBtn.classList.toggle('active', isShuffle);
+  });
+
+  // Repeat toggle
+  repeatBtn.addEventListener('click', () => {
+    isRepeat = !isRepeat;
+    repeatBtn.classList.toggle('active', isRepeat);
+  });
+
   audioPlayer.addEventListener('ended', () => {
-    if (currentIndex < queueItems.length - 1) {
+    if (isRepeat) {
+      playSong(currentIndex); // replay same track
+    } else if (isShuffle) {
+      const randomIndex = Math.floor(Math.random() * queueItems.length);
+      playSong(randomIndex);
+    } else if (currentIndex < queueItems.length - 1) {
       playSong(currentIndex + 1);
     } else {
-      playBtn.textContent = '▶';
+      playBtn.innerHTML = '<div data-lucide="play"></div>';
+      lucide.createIcons();
     }
   });
 
@@ -264,6 +290,7 @@
   // Start with first song
   playSong(0);
 </script>
-
-</body>
-</html>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
