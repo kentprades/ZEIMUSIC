@@ -13,56 +13,101 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    :root { --ink: #151515; --paper: #f1eee7; --muted: #8d8a82; --acid: #c6f052; --line: rgba(255,255,255,.13); }
+    :root { --ink: #0b050c; --panel: rgba(35, 13, 34, .62); --panel-strong: rgba(57, 17, 48, .86); --paper: #fff1fb; --muted: #b79aae; --acid: #ff2bd6; --cyan: #ff78ec; --line: rgba(255, 112, 226, .24); }
     * { box-sizing: border-box; }
-    body { background: var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif; margin-bottom: 132px; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .22; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: linear-gradient(to bottom, black, transparent 80%); mask-image: linear-gradient(to bottom, black, transparent 80%); }
-    .navbar { background: rgba(21,21,21,.92); border-bottom: 1px solid var(--line); padding: 18px 0; }
+    body { background: radial-gradient(circle at 8% 0%, rgba(255, 43, 214, .18), transparent 30%), radial-gradient(circle at 92% 42%, rgba(255, 120, 236, .12), transparent 25%), var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif; margin-bottom: 132px; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .2; background-image: linear-gradient(rgba(255, 93, 221, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 93, 221, .08) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: linear-gradient(to bottom, black, transparent 80%); mask-image: linear-gradient(to bottom, black, transparent 80%); }
+    body::after { content: ''; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.012) 4px); mix-blend-mode: screen; }
+    .navbar { position: sticky; top: 0; z-index: 10; background: rgba(18, 5, 17, .7); border-bottom: 1px solid var(--line); padding: 18px 0; -webkit-backdrop-filter: blur(20px) saturate(145%); backdrop-filter: blur(20px) saturate(145%); box-shadow: 0 0 28px rgba(255, 43, 214, .08); transition: padding .45s ease, background .45s ease, box-shadow .45s ease; }
+    .navbar.scrolled { padding: 9px 0; background: rgba(27, 7, 25, .9); box-shadow: 0 8px 35px rgba(255, 43, 214, .18), 0 1px 0 var(--acid); }
+    .nav-shell { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-width: 0; }
     .navbar-brand { color: var(--paper) !important; font-weight: 700; letter-spacing: .12em; font-size: .9rem; }
-    .navbar-brand hr { display: inline-block; width: 34px; vertical-align: middle; margin: 0 10px; border-color: var(--acid); opacity: 1; }
+    .navbar-brand hr { display: inline-block; width: 34px; vertical-align: middle; margin: 0 10px; border-color: var(--acid); opacity: 1; box-shadow: 0 0 10px var(--acid); }
+    .nav-led { display: inline-flex; align-items: end; gap: 3px; height: 22px; margin-left: 4px; vertical-align: middle; }
+    .nav-led i { display: block; width: 3px; height: 9px; background: var(--acid); box-shadow: 0 0 7px var(--acid), 0 0 14px var(--acid); transform-origin: bottom; transform: scaleY(.35); transition: transform .08s linear, box-shadow .08s linear; }
+    .nav-led i:nth-child(2) { height: 16px; animation-delay: -.2s; }
+    .nav-led i:nth-child(3) { height: 22px; animation-delay: -.55s; }
+    .nav-led i:nth-child(4) { height: 13px; animation-delay: -.35s; }
+    .nav-led i:nth-child(5) { height: 19px; animation-delay: -.7s; }
+    .nav-now { display: flex; align-items: center; gap: 11px; max-width: 0; opacity: 0; overflow: hidden; transform: translateX(18px) skewX(-8deg); transition: max-width .55s ease, opacity .35s ease, transform .55s ease; }
+    .navbar.scrolled .nav-now { max-width: 260px; opacity: 1; transform: translateX(0) skewX(0); }
+    .nav-art-frame { position: relative; width: 0; height: 0; flex: 0 0 auto; border: 1px solid var(--acid); transform: rotate(-8deg); transition: width .45s ease, height .45s ease, box-shadow .45s ease, transform .45s ease; }
+    .nav-art-frame::before { content: ''; position: absolute; inset: -5px; border: 1px solid rgba(255, 120, 236, .55); opacity: 0; animation: profilePulse 1.8s ease-in-out infinite; }
+    .nav-art-frame::after { content: ''; position: absolute; left: 0; right: 0; top: -10%; height: 2px; background: var(--paper); box-shadow: 0 0 8px var(--acid); opacity: 0; animation: profileScan 1.8s linear infinite; }
+    .nav-art { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .navbar.scrolled .nav-art-frame { width: 38px; height: 38px; box-shadow: 0 0 18px rgba(255, 43, 214, .7); transform: rotate(8deg); }
+    .navbar.scrolled .nav-art-frame::before, .navbar.scrolled .nav-art-frame::after { opacity: 1; }
+    body.is-playing .nav-led i { transform: scaleY(calc(.35 + var(--beat, .35))); box-shadow: 0 0 calc(7px + (var(--beat, .35) * 10px)) var(--acid), 0 0 calc(14px + (var(--beat, .35) * 18px)) var(--acid); }
+    body.is-playing .featured-track, body.is-playing .now-playing { box-shadow: inset 0 1px rgba(255,220,249,.08), 0 0 calc(24px + (var(--beat, .35) * 30px)) rgba(255,43,214,.18), 0 24px 70px rgba(0,0,0,.3); }
+    body.is-playing .nav-art-frame { box-shadow: 0 0 calc(18px + (var(--beat, .35) * 22px)) var(--acid); }
+    .nav-kicker { display: block; color: var(--acid); font: 500 .55rem 'DM Mono', monospace; letter-spacing: .14em; }
+    .nav-track { display: block; max-width: 190px; overflow: hidden; color: var(--paper); font-size: .72rem; white-space: nowrap; text-overflow: ellipsis; }
     .container { max-width: 1180px; }
-    .player-box { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(360px, 1.15fr); gap: clamp(30px, 6vw, 90px); padding: clamp(38px, 7vw, 88px) 0 40px; margin-top: 0; }
+    .player-box { position: relative; display: grid; grid-template-columns: minmax(280px, .85fr) minmax(360px, 1.15fr); gap: clamp(30px, 6vw, 90px); padding: clamp(38px, 7vw, 88px) 0 40px; margin-top: 0; }
+    .player-box::after { content: '● SYSTEM ONLINE'; position: absolute; top: 28px; right: 0; color: var(--cyan); font: 500 .62rem 'DM Mono', monospace; letter-spacing: .12em; animation: statusPulse 2.8s ease-in-out infinite; }
     .player-box::before { content: 'KENT IS ON THE PAPER / 2026'; grid-column: 1 / -1; color: var(--acid); font: 500 .7rem 'DM Mono', monospace; letter-spacing: .16em; margin-bottom: -48px; }
-    .featured-track, .queue-panel { min-width: 0; }
-    .queue-panel { align-self: start; }
-    .album-art { width: min(100%, 430px); aspect-ratio: 1; object-fit: cover; border-radius: 0; margin-bottom: 25px; box-shadow: 18px 18px 0 var(--acid); transition: transform .35s ease; }
-    .album-art:hover { transform: translate(-5px, -5px); }
+    .featured-track, .queue-panel { position: relative; min-width: 0; background: linear-gradient(145deg, rgba(75, 25, 65, .5), rgba(16, 5, 15, .66)); border: 1px solid var(--line); box-shadow: inset 0 1px rgba(255,220,249,.08), 0 24px 70px rgba(0,0,0,.3); -webkit-backdrop-filter: blur(22px) saturate(125%); backdrop-filter: blur(22px) saturate(125%); }
+    .featured-track::before, .queue-panel::before { content: ''; position: absolute; top: -1px; left: -1px; width: 42px; height: 42px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); pointer-events: none; }
+    .featured-track::after, .queue-panel::after { content: ''; position: absolute; right: -1px; bottom: -1px; width: 42px; height: 42px; border-right: 2px solid var(--acid); border-bottom: 2px solid var(--acid); pointer-events: none; }
+    .featured-track { padding: clamp(18px, 3vw, 34px); }
+    .featured-track h4::before { content: 'NOW TRANSMITTING / '; display: block; margin-bottom: 12px; color: var(--cyan); font: 500 .58rem 'DM Mono', monospace; letter-spacing: .14em; }
+    .queue-panel { align-self: start; padding: clamp(18px, 3vw, 30px); }
+    .cover-stage { position: relative; display: inline-block; width: min(100%, 430px); margin-bottom: 25px; isolation: isolate; }
+    .cover-stage::before, .cover-stage::after { content: ''; position: absolute; z-index: -1; pointer-events: none; opacity: .18; transition: opacity .25s ease, transform .12s linear; }
+    .cover-stage::before { inset: -16%; background: radial-gradient(circle, var(--acid) 0%, var(--cyan) 28%, transparent 67%); filter: blur(24px); transform: scale(calc(.88 + (var(--beat, .35) * .24))); }
+    .cover-stage::after { inset: -8%; border: 1px solid var(--cyan); box-shadow: 0 0 24px var(--acid), inset 0 0 24px var(--cyan); transform: scale(calc(.94 + (var(--beat, .35) * .12))) rotate(2deg); }
+    body.is-playing .cover-stage::before, body.is-playing .cover-stage::after { opacity: calc(.28 + (var(--beat, .35) * .5)); }
+    .album-art { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0; box-shadow: 10px 10px 0 var(--acid), 0 0 32px rgba(255, 43, 214, .2); transition: transform .35s ease, box-shadow .35s ease; }
+    .album-art:hover { transform: translate(-5px, -5px); box-shadow: 14px 14px 0 var(--cyan), 0 0 44px rgba(255, 43, 214, .38); }
     h4 { color: var(--paper); font-size: clamp(1.7rem, 3.6vw, 3.2rem); line-height: .98; letter-spacing: -.04em; margin-bottom: 12px; }
-    #current-genre { color: var(--muted) !important; font: .76rem 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+    #current-genre { color: var(--cyan) !important; font: .76rem 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
     .queue-heading { display: flex; align-items: end; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 13px; margin-top: 0 !important; color: var(--paper); font-size: 1.5rem; }
+    .queue-heading::before { content: 'AUDIO INDEX'; position: absolute; margin-top: -36px; color: var(--muted); font: 500 .58rem 'DM Mono', monospace; letter-spacing: .14em; }
     .queue-heading::after { content: '10 TRACKS'; color: var(--muted); font: .65rem 'DM Mono', monospace; letter-spacing: .1em; }
     #queue { max-height: min(650px, calc(100vh - 215px)); overflow-y: auto; padding-right: 8px; }
     #queue::-webkit-scrollbar { width: 4px; }
-    #queue::-webkit-scrollbar-thumb { background: var(--acid); }
-    .queue-item { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: #c8c5bd; cursor: pointer; transition: background .2s ease, color .2s ease, padding .2s ease; font-size: .9rem; }
-    .queue-item:hover { background: rgba(198,240,82,.1); color: var(--paper); padding-left: 17px; }
-    .queue-item img { width: 54px; height: 54px; object-fit: cover; border-radius: 0; box-shadow: none; flex: 0 0 auto; }
-    .queue-item.active { background: var(--acid); color: var(--ink); font-weight: 600; }
-    .now-playing { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: rgba(21,21,21,.95); padding: 14px clamp(16px, 4vw, 50px) 16px; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(280px, 2fr) minmax(150px, 1fr); align-items: center; border-top: 1px solid var(--line); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); gap: 28px; }
+    #queue::-webkit-scrollbar-thumb { background: linear-gradient(var(--cyan), var(--acid)); }
+    .queue-item { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: #c8d7d8; cursor: pointer; transition: background .2s ease, color .2s ease, padding .2s ease, transform .2s ease; font-size: .9rem; }
+    .queue-item:hover { background: rgba(255, 43, 214, .12); color: var(--paper); padding-left: 17px; transform: translateX(3px); }
+    .queue-item img { width: 54px; height: 54px; object-fit: cover; border-radius: 0; box-shadow: 0 0 0 1px rgba(255,255,255,.12); flex: 0 0 auto; }
+    .queue-item.active { background: linear-gradient(90deg, rgba(255,43,214,.94), rgba(255,120,236,.82)); color: var(--ink); font-weight: 600; box-shadow: 0 0 24px rgba(255,43,214,.3); }
+    .now-playing { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: rgba(18, 4, 16, .78); padding: 14px clamp(16px, 4vw, 50px) 16px; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(280px, 2fr) minmax(150px, 1fr); align-items: center; border-top: 1px solid var(--line); -webkit-backdrop-filter: blur(24px) saturate(145%); backdrop-filter: blur(24px) saturate(145%); box-shadow: 0 -12px 45px rgba(0,0,0,.3), 0 0 35px rgba(255,43,214,.1); gap: 28px; }
     .song-name { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .song-art { width: 48px; height: 48px; object-fit: cover; border-radius: 0; }
     #current-song-name { font-size: .82rem; margin: 0; color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .progress-container { min-width: 200px; }
-    .progress { width: 100%; height: 4px; background: #484842; cursor: pointer; border-radius: 0; overflow: hidden; }
-    .progress-bar { height: 4px; background: var(--acid); width: 0%; transition: width .2s linear; }
+    .progress { width: 100%; height: 5px; background: rgba(141, 178, 190, .22); cursor: pointer; border-radius: 0; overflow: hidden; }
+    .progress-bar { height: 5px; background: linear-gradient(90deg, var(--cyan), var(--acid)); width: 0%; transition: width .2s linear; box-shadow: 0 0 12px var(--cyan); }
     .time { font: .65rem 'DM Mono', monospace; color: var(--muted); }
     .controls { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
     .controls button { display: grid; place-items: center; width: 32px; height: 32px; background: none; border: none; color: var(--paper); cursor: pointer; transition: color .2s ease, transform .2s ease; }
-    .controls button:hover { color: var(--acid); transform: translateY(-2px); }
+    .controls button:hover { color: var(--cyan); transform: translateY(-2px); }
     .controls button.active { color: var(--acid); }
     .controls svg { width: 17px; height: 17px; }
-    #play { background: var(--paper); color: var(--ink); width: 38px; height: 38px; border-radius: 50%; }
+    #play { background: linear-gradient(135deg, var(--paper), var(--acid)); color: var(--ink); width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 0 20px rgba(255,43,214,.42); }
     .extra-controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: var(--muted); }
     .extra-controls svg { width: 16px; }
-    .volume-slider { width: 110px; accent-color: var(--acid); }
-    @media (max-width: 768px) { body { margin-bottom: 190px; } .navbar-brand { white-space: normal; line-height: 1.5; } .player-box { display: block; padding-top: 48px; } .player-box::before { display: block; margin-bottom: 30px; } .album-art { width: min(78vw, 360px); box-shadow: 10px 10px 0 var(--acid); } .queue-panel { margin-top: 58px; } #queue { max-height: 330px; } .now-playing { grid-template-columns: 1fr; gap: 8px; padding: 12px 16px 14px; } .song-name { justify-content: center; } .progress-container { min-width: 0; } .controls { margin-top: 8px; } .extra-controls { justify-content: center; } .volume-slider { width: 150px; } }
+    .volume-slider { width: 110px; accent-color: var(--cyan); }
+    @keyframes statusPulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; text-shadow: 0 0 12px var(--cyan); } }
+    @keyframes profilePulse { 0%, 100% { transform: scale(.92); opacity: .25; } 50% { transform: scale(1.08); opacity: .85; } }
+    @keyframes profileScan { 0% { top: -10%; } 100% { top: 110%; } }
+    @media (max-width: 768px) { body { margin-bottom: 190px; } .navbar-brand { max-width: 58%; min-width: 0; overflow: hidden; white-space: normal; line-height: 1.5; font-size: .75rem; } .nav-led { height: 16px; gap: 2px; } .nav-led i { width: 2px; } .navbar.scrolled .nav-now { max-width: 42%; gap: 6px; } .nav-track { max-width: 100px; font-size: .62rem; } .player-box { display: block; padding-top: 58px; } .player-box::before { display: block; margin-bottom: 30px; } .player-box::after { top: 28px; right: 16px; } .cover-stage { width: min(78vw, 360px); } .album-art { box-shadow: 10px 10px 0 var(--acid); } .queue-panel { margin-top: 58px; } #queue { max-height: 330px; } .now-playing { grid-template-columns: 1fr; gap: 8px; padding: 12px 16px 14px; } .song-name { justify-content: center; } .progress-container { min-width: 0; } .controls { margin-top: 8px; } .extra-controls { justify-content: center; } .volume-slider { width: 150px; } }
   </style>
 </head>
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-dark">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">ZEIMUSIC <hr> Kent is on the Paper album</span>
+      <div class="nav-shell">
+        <span class="navbar-brand mb-0 h1">ZEIMUSIC <hr> Kent is on the Paper album <span class="nav-led" aria-label="Music active"><i></i><i></i><i></i><i></i><i></i></span></span>
+        <div class="nav-now" aria-live="polite">
+          <div class="nav-art-frame"><img id="nav-art" class="nav-art" src="covers/song1.jpg" alt=""></div>
+          <div>
+            <span class="nav-kicker">LIVE SIGNAL / NOW PLAYING</span>
+            <strong id="nav-track" class="nav-track">Should I Try Now</strong>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -70,7 +115,9 @@
   <div class="container">
     <div class="player-box text-center">
       <section class="featured-track text-center">
-        <img id="current-art" src="covers/song1.jpg" alt="Album Art" class="album-art">
+        <div class="cover-stage">
+          <img id="current-art" src="covers/song1.jpg" alt="Album Art" class="album-art">
+        </div>
         <h4 id="current-title">Should I Try Now (By Shawn Kent)</h4>
         <p id="current-genre" class="text-muted">Taglish Emo Rap</p>
       </section>
@@ -99,7 +146,7 @@
         <div class="queue-item" data-src="songs/song7.mp3" data-title="Six Petals (By Kent is on the Paper)" data-genre="Bubbly" data-art="covers/song7.jpg">
           <img src="covers/song7.jpg" alt="Cover"> Six Petals (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song8.mp3" data-title="Until the Rain Will Stop (By Kent is on the Paper)" data-genre="Broken" data-art="covers/song8.jpg">
+        <div class="queue-item" data-src="songs/song8.mp3" data-title="Until the Rain Will Stop (By Kent is on the Paper)" data-genre="Sad Song" data-art="covers/song8.jpg">
           <img src="covers/song8.jpg" alt="Cover"> Until the Rain Will Stop (By Kent is on the Paper)
         </div>
         <div class="queue-item" data-src="songs/song9.mp3" data-title="Under the Christmas Sky (By Kent is on the Paper)" data-genre="Carol Jingle" data-art="covers/song9.jpg">
@@ -165,15 +212,73 @@
   const currentGenre = document.getElementById('current-genre');
   const currentSongArt = document.getElementById('current-song-art');
   const currentSongName = document.getElementById('current-song-name');
+  const navBar = document.querySelector('.navbar');
+  const navArt = document.getElementById('nav-art');
+  const navTrack = document.getElementById('nav-track');
+  const ledBars = document.querySelectorAll('.nav-led i');
 
   let currentIndex = 0;
   let isShuffle = false;
   let isRepeat = false;
+  let audioContext;
+  let analyser;
+  let sourceNode;
+  let beatFrame;
+  let lastPaletteIndex = -1;
+
+  const neonPalettes = [
+    { acid: '#ff2bd6', cyan: '#ff78ec', line: 'rgba(255, 112, 226, .24)' },
+    { acid: '#baff00', cyan: '#39ff88', line: 'rgba(135, 255, 174, .24)' },
+    { acid: '#00eaff', cyan: '#66f6ff', line: 'rgba(102, 246, 255, .24)' },
+    { acid: '#ff5c35', cyan: '#ffc857', line: 'rgba(255, 160, 80, .24)' }
+  ];
+
+  function applyRandomPalette() {
+    let paletteIndex = Math.floor(Math.random() * neonPalettes.length);
+    while (neonPalettes.length > 1 && paletteIndex === lastPaletteIndex) {
+      paletteIndex = Math.floor(Math.random() * neonPalettes.length);
+    }
+    lastPaletteIndex = paletteIndex;
+    const palette = neonPalettes[paletteIndex];
+    const root = document.documentElement;
+    root.style.setProperty('--acid', palette.acid);
+    root.style.setProperty('--cyan', palette.cyan);
+    root.style.setProperty('--line', palette.line);
+  }
+
+  function startAudioAnalysis() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 128;
+      sourceNode = audioContext.createMediaElementSource(audioPlayer);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+    }
+    audioContext.resume();
+    const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+    const updateBeat = () => {
+      if (!document.body.classList.contains('is-playing')) {
+        document.documentElement.style.setProperty('--beat', '.35');
+        return;
+      }
+      analyser.getByteFrequencyData(frequencyData);
+      const average = frequencyData.reduce((sum, value) => sum + value, 0) / frequencyData.length;
+      const beat = Math.min(1, Math.max(.2, average / 150));
+      document.documentElement.style.setProperty('--beat', beat.toFixed(2));
+      beatFrame = requestAnimationFrame(updateBeat);
+    };
+
+    cancelAnimationFrame(beatFrame);
+    updateBeat();
+  }
 
   function playSong(index) {
     const item = queueItems[index];
     audioPlayer.src = item.dataset.src;
-    audioPlayer.play();
+    applyRandomPalette();
+    audioPlayer.play().catch(() => {});
     currentIndex = index;
 
     // Update main player info
@@ -184,6 +289,8 @@
     // Update bottom bar song info
     currentSongArt.src = item.dataset.art;
     currentSongName.textContent = item.dataset.title;
+    navArt.src = item.dataset.art;
+    navTrack.textContent = item.dataset.title;
 
     // Highlight active track
     queueItems.forEach(q => q.classList.remove('active'));
@@ -195,13 +302,28 @@
 
   playBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
-      audioPlayer.play();
+      audioPlayer.play().catch(() => {});
       playBtn.innerHTML = '<div data-lucide="pause"></div>';
     } else {
       audioPlayer.pause();
       playBtn.innerHTML = '<div data-lucide="play"></div>';
     }
     lucide.createIcons();
+  });
+
+  audioPlayer.addEventListener('play', () => {
+    document.body.classList.add('is-playing');
+    playBtn.innerHTML = '<div data-lucide="pause"></div>';
+    lucide.createIcons();
+    startAudioAnalysis();
+  });
+
+  audioPlayer.addEventListener('pause', () => {
+    document.body.classList.remove('is-playing');
+    playBtn.innerHTML = '<div data-lucide="play"></div>';
+    lucide.createIcons();
+    cancelAnimationFrame(beatFrame);
+    document.documentElement.style.setProperty('--beat', '.35');
   });
 
   prevBtn.addEventListener('click', () => {
@@ -267,6 +389,10 @@
   volumeSlider.addEventListener('input', () => {
     audioPlayer.volume = volumeSlider.value;
   });
+
+  window.addEventListener('scroll', () => {
+    navBar.classList.toggle('scrolled', window.scrollY > 24);
+  }, { passive: true });
 
   // Start with first song
   playSong(0);
