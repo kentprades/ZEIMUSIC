@@ -8,151 +8,109 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZEIMUSIC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body {
-      background: linear-gradient(135deg, #121212, #181818);
-      color: #fff;
-      font-family: 'Helvetica Neue', sans-serif;
-      margin-bottom: 160px; /* space for bottom bar */
-    }
-    .navbar { background-color: #000; }
-    .player-box {
-      background: rgba(24,24,24,0.9);
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-    }
-    h4 { color: #1db954; }
-    .album-art {
-      width: 60%; max-width: 300px;
-      object-fit: cover; border-radius: 12px;
-      margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    }
-    .queue-item {
-      display: flex; align-items: center;
-      padding: 10px; border-bottom: 1px solid #333;
-      cursor: pointer; transition: background 0.3s ease;
-    }
-    .queue-item:hover { background-color: rgba(29,185,84,0.2); }
-    .queue-item img {
-      width: 60px; height: 60px; object-fit: cover;
-      border-radius: 10px; margin-right: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
-    }
-    .queue-item.active { background-color: #1db954; color: #000; font-weight: bold; }
-
-    .now-playing {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(24,24,24,0.95);
-      padding: 10px 20px;
-      display: flex; flex-wrap: wrap;
-      align-items: center; justify-content: space-between;
-      border-top: 1px solid #333;
-      backdrop-filter: blur(8px);
-      gap: 10px;
-    }
-    .song-name {
-      flex: 1 1 auto;
-      display: flex; align-items: center;
-      gap: 10px; min-width: 180px;
-    }
-    .song-art {
-      width: 40px; height: 40px;
-      object-fit: cover; border-radius: 6px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.5);
-    }
-    #current-song-name { font-size: 0.9rem; margin: 0; color: #fff; }
-
-    .progress-container {
-      flex: 2 1 100%; min-width: 200px;
-    }
-    .progress {
-      width: 100%; height: 6px; background-color: #333;
-      cursor: pointer; border-radius: 4px; overflow: hidden;
-    }
-    .progress-bar { height: 6px; background-color: #1db954; width: 0%; transition: width 0.2s linear; }
-    .time { font-size: 0.8rem; color: #aaa; }
-
-    .controls {
-      flex: 1 1 auto; display: flex; justify-content: center;
-    }
-    .controls button {
-      background: none; border: none; color: #fff;
-      font-size: 1.5rem; margin: 0 10px; cursor: pointer;
-      transition: color 0.3s ease;
-    }
-    .controls button:hover { color: #1db954; }
-    .controls button.active { color: #1db954; }
-
-    .extra-controls {
-      flex: 1 1 auto; display: flex; justify-content: flex-end;
-    }
-    .volume-slider { width: 120px; }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-      .song-name { order: 1; justify-content: center; width: 100%; }
-      .progress-container { order: 2; flex: 1 1 100%; }
-      .controls { order: 3; justify-content: center; }
-      .extra-controls { order: 4; justify-content: center; width: 100%; }
-      .song-art { width: 30px; height: 30px; }
-      #current-song-name { font-size: 0.8rem; text-align: center; }
-      .volume-slider { width: 100%; max-width: 200px; }
-    }
+    :root { --ink: #151515; --paper: #f1eee7; --muted: #8d8a82; --acid: #c6f052; --line: rgba(255,255,255,.13); }
+    * { box-sizing: border-box; }
+    body { background: var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif; margin-bottom: 132px; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .22; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: linear-gradient(to bottom, black, transparent 80%); mask-image: linear-gradient(to bottom, black, transparent 80%); }
+    .navbar { background: rgba(21,21,21,.92); border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .navbar-brand { color: var(--paper) !important; font-weight: 700; letter-spacing: .12em; font-size: .9rem; }
+    .navbar-brand hr { display: inline-block; width: 34px; vertical-align: middle; margin: 0 10px; border-color: var(--acid); opacity: 1; }
+    .container { max-width: 1180px; }
+    .player-box { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(360px, 1.15fr); gap: clamp(30px, 6vw, 90px); padding: clamp(38px, 7vw, 88px) 0 40px; margin-top: 0; }
+    .player-box::before { content: 'KENT IS ON THE PAPER / 2026'; grid-column: 1 / -1; color: var(--acid); font: 500 .7rem 'DM Mono', monospace; letter-spacing: .16em; margin-bottom: -48px; }
+    .featured-track, .queue-panel { min-width: 0; }
+    .queue-panel { align-self: start; }
+    .album-art { width: min(100%, 430px); aspect-ratio: 1; object-fit: cover; border-radius: 0; margin-bottom: 25px; box-shadow: 18px 18px 0 var(--acid); transition: transform .35s ease; }
+    .album-art:hover { transform: translate(-5px, -5px); }
+    h4 { color: var(--paper); font-size: clamp(1.7rem, 3.6vw, 3.2rem); line-height: .98; letter-spacing: -.04em; margin-bottom: 12px; }
+    #current-genre { color: var(--muted) !important; font: .76rem 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+    .queue-heading { display: flex; align-items: end; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 13px; margin-top: 0 !important; color: var(--paper); font-size: 1.5rem; }
+    .queue-heading::after { content: '10 TRACKS'; color: var(--muted); font: .65rem 'DM Mono', monospace; letter-spacing: .1em; }
+    #queue { max-height: min(650px, calc(100vh - 215px)); overflow-y: auto; padding-right: 8px; }
+    #queue::-webkit-scrollbar { width: 4px; }
+    #queue::-webkit-scrollbar-thumb { background: var(--acid); }
+    .queue-item { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: #c8c5bd; cursor: pointer; transition: background .2s ease, color .2s ease, padding .2s ease; font-size: .9rem; }
+    .queue-item:hover { background: rgba(198,240,82,.1); color: var(--paper); padding-left: 17px; }
+    .queue-item img { width: 54px; height: 54px; object-fit: cover; border-radius: 0; box-shadow: none; flex: 0 0 auto; }
+    .queue-item.active { background: var(--acid); color: var(--ink); font-weight: 600; }
+    .now-playing { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; background: rgba(21,21,21,.95); padding: 14px clamp(16px, 4vw, 50px) 16px; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(280px, 2fr) minmax(150px, 1fr); align-items: center; border-top: 1px solid var(--line); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); gap: 28px; }
+    .song-name { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .song-art { width: 48px; height: 48px; object-fit: cover; border-radius: 0; }
+    #current-song-name { font-size: .82rem; margin: 0; color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .progress-container { min-width: 200px; }
+    .progress { width: 100%; height: 4px; background: #484842; cursor: pointer; border-radius: 0; overflow: hidden; }
+    .progress-bar { height: 4px; background: var(--acid); width: 0%; transition: width .2s linear; }
+    .time { font: .65rem 'DM Mono', monospace; color: var(--muted); }
+    .controls { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+    .controls button { display: grid; place-items: center; width: 32px; height: 32px; background: none; border: none; color: var(--paper); cursor: pointer; transition: color .2s ease, transform .2s ease; }
+    .controls button:hover { color: var(--acid); transform: translateY(-2px); }
+    .controls button.active { color: var(--acid); }
+    .controls svg { width: 17px; height: 17px; }
+    #play { background: var(--paper); color: var(--ink); width: 38px; height: 38px; border-radius: 50%; }
+    .extra-controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: var(--muted); }
+    .extra-controls svg { width: 16px; }
+    .volume-slider { width: 110px; accent-color: var(--acid); }
+    @media (max-width: 768px) { body { margin-bottom: 190px; } .navbar-brand { white-space: normal; line-height: 1.5; } .player-box { display: block; padding-top: 48px; } .player-box::before { display: block; margin-bottom: 30px; } .album-art { width: min(78vw, 360px); box-shadow: 10px 10px 0 var(--acid); } .queue-panel { margin-top: 58px; } #queue { max-height: 330px; } .now-playing { grid-template-columns: 1fr; gap: 8px; padding: 12px 16px 14px; } .song-name { justify-content: center; } .progress-container { min-width: 0; } .controls { margin-top: 8px; } .extra-controls { justify-content: center; } .volume-slider { width: 150px; } }
   </style>
 </head>
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-dark">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">ZEIMUSIC</span>
+      <span class="navbar-brand mb-0 h1">ZEIMUSIC <hr> Kent is on the Paper album</span>
     </div>
   </nav>
 
   <!-- Main Player -->
   <div class="container">
     <div class="player-box text-center">
-      <img id="current-art" src="covers/song1.jpg" alt="Album Art" class="album-art">
-      <h4 id="current-title">Should I Try Now (By Shawn Kent)</h4>
-      <p id="current-genre" class="text-muted">Taglish Emo Rap</p>
+      <section class="featured-track text-center">
+        <img id="current-art" src="covers/song1.jpg" alt="Album Art" class="album-art">
+        <h4 id="current-title">Should I Try Now (By Shawn Kent)</h4>
+        <p id="current-genre" class="text-muted">Taglish Emo Rap</p>
+      </section>
 
-      <!-- Queue -->
-      <h5 class="mt-4 text-start">Queue</h5>
-      <div id="queue">
-        <div class="queue-item" data-src="songs/song1.mp3" data-title="Should I Try Now (By Shawn Kent)" data-genre="Taglish Emo Rap" data-art="covers/song1.jpg">
-          <img src="covers/song1.jpg" alt="Cover"> Should I Try Now (By Shawn Kent)
+      <section class="queue-panel">
+        <h5 class="queue-heading">Queue</h5>
+        <div id="queue">
+        <div class="queue-item" data-src="songs/song1.mp3" data-title="Should I Try Now (By Kent is on the Paper)" data-genre="Taglish Emo Rap" data-art="covers/song1.jpg">
+          <img src="covers/song1.jpg" alt="Cover"> Should I Try Now (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song2.mp3" data-title="Sure na Ba (By Shawn Kent)" data-genre="Reggae Slowed" data-art="covers/song2.jpg">
-          <img src="covers/song2.jpg" alt="Cover"> Sure na Ba? (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song2.mp3" data-title="Sure na Ba (By Kent is on the Paper)" data-genre="Reggae Slowed" data-art="covers/song2.jpg">
+          <img src="covers/song2.jpg" alt="Cover"> Sure na Ba? (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song3.mp3" data-title="System Crash (By Shawn Kent)" data-genre="Rock" data-art="covers/song3.jpg">
-          <img src="covers/song3.jpg" alt="Cover"> System Crash (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song3.mp3" data-title="System Crash (By Kent is on the Paper)" data-genre="Rock" data-art="covers/song3.jpg">
+          <img src="covers/song3.jpg" alt="Cover"> System Crash (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song4.mp3" data-title="I'll save you (By Shawn Kent)" data-genre="Lullaby Calm" data-art="covers/song4.jpg">
-          <img src="covers/song4.jpg" alt="Cover"> I'll save you (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song4.mp3" data-title="I'll save you (By Kent is on the Paper)" data-genre="Lullaby Calm" data-art="covers/song4.jpg">
+          <img src="covers/song4.jpg" alt="Cover"> I'll save you (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song5.mp3" data-title="Kent is on the Paper (By Shawn Kent)" data-genre="Pop Rap" data-art="covers/song5.jpg">
-          <img src="covers/song5.jpg" alt="Cover"> Kent is on the Paper (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song5.mp3" data-title="Kent is on the Paper (By Kent is on the Paper)" data-genre="Pop Rap" data-art="covers/song5.jpg">
+          <img src="covers/song5.jpg" alt="Cover"> Kent is on the Paper (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song6.mp3" data-title="Thank You, and Sorry (This Christmas) (By Shawn Kent)" data-genre="Bubbly" data-art="covers/song6.jpg">
-          <img src="covers/song6.jpg" alt="Cover"> Thank You, and Sorry (This Christmas) (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song6.mp3" data-title="Thank You, and Sorry (This Christmas) (By Kent is on the Paper)" data-genre="Bubbly" data-art="covers/song6.jpg">
+          <img src="covers/song6.jpg" alt="Cover"> Thank You, and Sorry (This Christmas) (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song7.mp3" data-title="Six Petals (By Shawn Kent)" data-genre="Bubbly" data-art="covers/song7.jpg">
-          <img src="covers/song7.jpg" alt="Cover"> Six Petals (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song7.mp3" data-title="Six Petals (By Kent is on the Paper)" data-genre="Bubbly" data-art="covers/song7.jpg">
+          <img src="covers/song7.jpg" alt="Cover"> Six Petals (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song8.mp3" data-title="Until the Rain Will Stop (By Shawn Kent)" data-genre="Broken" data-art="covers/song8.jpg">
-          <img src="covers/song8.jpg" alt="Cover"> Until the Rain Will Stop (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song8.mp3" data-title="Until the Rain Will Stop (By Kent is on the Paper)" data-genre="Broken" data-art="covers/song8.jpg">
+          <img src="covers/song8.jpg" alt="Cover"> Until the Rain Will Stop (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song9.mp3" data-title="Under the Christmas Sky (By Shawn Kent)" data-genre="Carol Jingle" data-art="covers/song9.jpg">
-          <img src="covers/song9.jpg" alt="Cover"> Under the Christmas Sky (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song9.mp3" data-title="Under the Christmas Sky (By Kent is on the Paper)" data-genre="Carol Jingle" data-art="covers/song9.jpg">
+          <img src="covers/song9.jpg" alt="Cover"> Under the Christmas Sky (By Kent is on the Paper)
         </div>
-        <div class="queue-item" data-src="songs/song10.mp3" data-title="Hanggang tingin lang ba? (By Shawn Kent)" data-genre="Rap" data-art="covers/song10.jpg">
-          <img src="covers/song10.jpg" alt="Cover"> Hanggang tingin lang ba? (By Shawn Kent)
+        <div class="queue-item" data-src="songs/song10.mp3" data-title="Hanggang tingin lang ba? (By Kent is on the Paper)" data-genre="Rap" data-art="covers/song10.jpg">
+          <img src="covers/song10.jpg" alt="Cover"> Hanggang tingin lang ba? (By Kent is on the Paper)
         </div>
 
-      </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -173,16 +131,17 @@
         <span id="duration" class="time">0:00</span>
       </div>
       <div class="controls">
-        <button id="prev"><div data-lucide="skip-back"></div></button>
-        <button id="play"><div data-lucide="play"></div></button>
-        <button id="next"><div data-lucide="skip-forward"></div></button>
-        <button id="shuffle"><div data-lucide="shuffle"></div></button>
-        <button id="repeat"><div data-lucide="repeat"></div></button>
+        <button id="prev" aria-label="Previous song" title="Previous song"><div data-lucide="skip-back"></div></button>
+        <button id="play" aria-label="Play song" title="Play song"><div data-lucide="play"></div></button>
+        <button id="next" aria-label="Next song" title="Next song"><div data-lucide="skip-forward"></div></button>
+        <button id="shuffle" aria-label="Toggle shuffle" title="Toggle shuffle"><div data-lucide="shuffle"></div></button>
+        <button id="repeat" aria-label="Toggle repeat" title="Toggle repeat"><div data-lucide="repeat"></div></button>
       </div>
     </div>
 
     <div class="extra-controls">
       <div data-lucide="volume-2"></div>
+      <label for="volume" class="visually-hidden">Volume</label>
       <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.01" value="1">
     </div>
   </div>
